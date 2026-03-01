@@ -1,47 +1,55 @@
-"""FastAPI application entry point for BudgetBrawl."""
+"""FastAPI entrypoint — mounts all routers, starts scheduler via lifespan."""
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database import init_db
-from app.routers import auth, users, friends, events, challenges
-from app.scheduler import start_scheduler
+from auth.router import router as auth_router
+from gcalendar.router import router as calendar_router
+from challenges.router import router as challenges_router
+from config import settings
+from friends.router import router as friends_router
+from onboarding.router import router as onboarding_router
+from predictions.router import router as predictions_router
+from scheduler import create_scheduler
+from users.router import router as users_router
+from wallet.router import router as wallet_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Manage application lifespan - startup and shutdown."""
-    await init_db()
-    scheduler = start_scheduler()
+    scheduler = create_scheduler()
+    scheduler.start()
     yield
     scheduler.shutdown(wait=False)
 
 
 app = FastAPI(
     title="BudgetBrawl API",
-    description="Backend API for BudgetBrawl - budget challenges between friends",
-    version="0.1.0",
+    description="Spending prediction and social betting powered by Snowflake Cortex",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[settings.FRONTEND_URL, "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth.router, prefix="/auth", tags=["auth"])
-app.include_router(users.router, prefix="/users", tags=["users"])
-app.include_router(friends.router, prefix="/friends", tags=["friends"])
-app.include_router(events.router, prefix="/events", tags=["events"])
-app.include_router(challenges.router, prefix="/challenges", tags=["challenges"])
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(onboarding_router)
+app.include_router(friends_router)
+app.include_router(calendar_router)
+app.include_router(predictions_router)
+app.include_router(challenges_router)
+app.include_router(wallet_router)
 
 
 @app.get("/health")
-async def health_check():
-    """Health check endpoint."""
+def health():
     return {"status": "ok"}
