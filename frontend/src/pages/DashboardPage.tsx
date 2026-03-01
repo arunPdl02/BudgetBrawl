@@ -130,7 +130,7 @@ export default function DashboardPage() {
                 </p>
               )}
               <Link
-                to="/challenges"
+                to={`/challenges/new?predictionId=${p.PREDICTION_ID ?? p.prediction_id}`}
                 style={{ ...linkStyle, marginTop: "0.4rem", display: "block" }}
               >
                 Create a challenge

@@ -56,6 +56,43 @@ def sync_calendar(user_id: str) -> list[dict]:
             status_code=502, detail=f"Calendar save failed: {exc}"
         )
 
+    # --- Clean up deleted/cancelled events ---
+    synced_ids = [ev["event_id"] for ev in events]
+
+    if synced_ids:
+        placeholders = ", ".join(["%s"] * len(synced_ids))
+        not_in_clause = f"event_id NOT IN ({placeholders})"
+        params: tuple = (user_id, *synced_ids)
+    else:
+        # No events from Google — all events in the window are orphaned
+        not_in_clause = "1=1"
+        params = (user_id,)
+
+    # Delete orphaned predictions (only if not referenced by a challenge)
+    run_query(
+        f"""
+        DELETE FROM spending_predictions
+        WHERE user_id = %s
+          AND {not_in_clause}
+          AND prediction_id NOT IN (SELECT prediction_id FROM challenges)
+        """,
+        params,
+        fetch=False,
+    )
+
+    # Delete orphaned calendar events in the 7-day future window
+    run_query(
+        f"""
+        DELETE FROM calendar_events
+        WHERE user_id = %s
+          AND start_time >= CURRENT_TIMESTAMP()
+          AND start_time <= DATEADD('day', 7, CURRENT_TIMESTAMP())
+          AND {not_in_clause}
+        """,
+        params,
+        fetch=False,
+    )
+
     return events
 
 

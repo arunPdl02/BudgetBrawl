@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { getFriends } from "../api/friends";
 import { getPredictions } from "../api/predictions";
 import { createChallenge } from "../api/challenges";
@@ -7,6 +7,8 @@ import { colors, pageStyle, selectStyle, inputStyle, btnPrimary, labelStyle } fr
 
 export default function NewChallengePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const predictionIdFromUrl = searchParams.get("predictionId");
   const [friends, setFriends] = useState<any[]>([]);
   const [predictions, setPredictions] = useState<any[]>([]);
   const [friendId, setFriendId] = useState("");
@@ -20,6 +22,15 @@ export default function NewChallengePage() {
     getFriends().then(setFriends).catch(() => {});
     getPredictions().then(setPredictions).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (predictionIdFromUrl && predictions.length > 0 && predictionIdx === -1) {
+      const idx = predictions.findIndex(
+        (p: any) => String(p.PREDICTION_ID ?? p.prediction_id) === predictionIdFromUrl
+      );
+      if (idx >= 0) setPredictionIdx(idx);
+    }
+  }, [predictions, predictionIdFromUrl]);
 
   const selectedPrediction = predictionIdx >= 0 ? predictions[predictionIdx] : null;
 
