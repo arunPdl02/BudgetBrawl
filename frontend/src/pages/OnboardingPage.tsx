@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { submitQuiz } from "../api/onboarding";
 import { useAuth } from "../contexts/AuthContext";
+import { colors, btnPrimary, inputStyle } from "../theme";
 
 const QUESTIONS = [
   {
@@ -57,9 +58,9 @@ export default function OnboardingPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#0f172a",
-        color: "#f8fafc",
-        fontFamily: "sans-serif",
+        background: colors.pageBg,
+        color: colors.textPrimary,
+        fontFamily: "'Inter', sans-serif",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -68,17 +69,19 @@ export default function OnboardingPage() {
       }}
     >
       <h1 style={{ marginBottom: "0.5rem" }}>Tell us about your habits</h1>
-      <p style={{ color: "#94a3b8", marginBottom: "2rem" }}>
+      <p style={{ color: colors.textSecondary, marginBottom: "2rem" }}>
         Step {step + 1} of {QUESTIONS.length}
       </p>
 
       <div
         style={{
-          background: "#1e293b",
-          borderRadius: "12px",
+          background: colors.cardBg,
+          borderRadius: "20px",
           padding: "2rem",
           width: "100%",
           maxWidth: "480px",
+          border: `1px solid ${colors.borderLight}`,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
         }}
       >
         <label
@@ -86,21 +89,13 @@ export default function OnboardingPage() {
             display: "block",
             marginBottom: "0.75rem",
             fontWeight: 600,
+            color: colors.textPrimary,
           }}
         >
           {q.label}
         </label>
         <input
-          style={{
-            width: "100%",
-            padding: "0.6rem 0.8rem",
-            borderRadius: "6px",
-            border: "1px solid #334155",
-            background: "#0f172a",
-            color: "#f8fafc",
-            fontSize: "1rem",
-            boxSizing: "border-box",
-          }}
+          style={inputStyle}
           placeholder={q.placeholder}
           value={answers[q.key] ?? ""}
           onChange={(e) =>
@@ -112,22 +107,16 @@ export default function OnboardingPage() {
           onClick={handleNext}
           disabled={loading || !answers[q.key]?.trim()}
           style={{
+            ...btnPrimary,
             marginTop: "1.25rem",
             width: "100%",
-            padding: "0.75rem",
-            borderRadius: "8px",
-            border: "none",
-            background: "#6366f1",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: "1rem",
-            cursor: "pointer",
+            opacity: loading || !answers[q.key]?.trim() ? 0.6 : 1,
           }}
         >
           {loading
-            ? "Saving…"
+            ? "Saving..."
             : step < QUESTIONS.length - 1
-            ? "Next →"
+            ? "Next"
             : "Finish Setup"}
         </button>
       </div>

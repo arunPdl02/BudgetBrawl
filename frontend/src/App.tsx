@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
+import { colors } from "./theme";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import ChallengePage from "./pages/ChallengePage";
 import ChallengesListPage from "./pages/ChallengesListPage";
@@ -18,9 +19,10 @@ function Nav() {
     <a
       href={to}
       style={{
-        color: loc.pathname === to ? "#818cf8" : "#94a3b8",
+        color: loc.pathname === to ? colors.primary : colors.textSecondary,
         textDecoration: "none",
-        fontWeight: loc.pathname === to ? 700 : 400,
+        fontWeight: loc.pathname === to ? 700 : 500,
+        fontSize: "0.95rem",
       }}
     >
       {label}
@@ -31,16 +33,16 @@ function Nav() {
   return (
     <nav
       style={{
-        background: "#1e293b",
+        background: colors.navBg,
         padding: "0.75rem 1.5rem",
         display: "flex",
         gap: "1.5rem",
         alignItems: "center",
-        borderBottom: "1px solid #334155",
+        borderBottom: `1px solid ${colors.border}`,
       }}
     >
-      <span style={{ fontWeight: 800, color: "#f8fafc", marginRight: "auto" }}>
-        💸 BudgetBrawl
+      <span style={{ fontWeight: 800, color: colors.textPrimary, marginRight: "auto", fontSize: "1.1rem" }}>
+        BudgetBrawl
       </span>
       {navLink("/dashboard", "Dashboard")}
       {navLink("/friends", "Friends")}
@@ -49,13 +51,14 @@ function Nav() {
       <button
         onClick={logout}
         style={{
-          padding: "0.3rem 0.7rem",
-          borderRadius: "5px",
-          border: "1px solid #334155",
+          padding: "0.35rem 0.75rem",
+          borderRadius: "8px",
+          border: `1px solid ${colors.border}`,
           background: "transparent",
-          color: "#94a3b8",
+          color: colors.textSecondary,
           cursor: "pointer",
           fontSize: "0.85rem",
+          fontWeight: 500,
         }}
       >
         Sign out
@@ -73,15 +76,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       <div
         style={{
           minHeight: "100vh",
-          background: "#0f172a",
+          background: colors.pageBg,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "#94a3b8",
-          fontFamily: "sans-serif",
+          color: colors.textSecondary,
+          fontFamily: "'Inter', sans-serif",
         }}
       >
-        Loading…
+        Loading...
       </div>
     );
 
@@ -96,7 +99,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <div style={{ minHeight: "100vh", background: "#0f172a" }}>
+    <div style={{ minHeight: "100vh", background: colors.pageBg }}>
       <Nav />
       <Routes>
         <Route path="/login" element={<LoginPage />} />

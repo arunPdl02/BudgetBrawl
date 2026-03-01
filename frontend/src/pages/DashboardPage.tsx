@@ -4,6 +4,7 @@ import { syncCalendar } from "../api/calendar";
 import { generatePredictions, getPredictions } from "../api/predictions";
 import { useAuth } from "../contexts/AuthContext";
 import { useWallet } from "../contexts/WalletContext";
+import { colors, pageStyle, cardStyle, btnPrimary, btnSecondary, linkStyle } from "../theme";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -46,72 +47,72 @@ export default function DashboardPage() {
 
   return (
     <div style={pageStyle}>
-      <h1>
-        Welcome, {user?.DISPLAY_NAME ?? user?.EMAIL} 👋
+      <h1 style={{ fontWeight: 800 }}>
+        Welcome, {user?.DISPLAY_NAME ?? user?.EMAIL}
       </h1>
 
-      <div style={cardRow}>
-        <div style={statCard}>
-          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Wallet</div>
-          <div style={{ fontSize: "1.75rem", fontWeight: 700 }}>
-            ${balance?.toFixed(2) ?? "—"}
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
+        <div style={{ ...cardStyle, flex: 1, minWidth: "160px" }}>
+          <div style={{ fontSize: "0.85rem", color: colors.textSecondary }}>Wallet</div>
+          <div style={{ fontSize: "1.75rem", fontWeight: 700, color: colors.green }}>
+            ${balance?.toFixed(2) ?? "---"}
           </div>
           <Link to="/wallet" style={linkStyle}>
-            View transactions →
+            View transactions
           </Link>
         </div>
-        <div style={statCard}>
-          <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>
+        <div style={{ ...cardStyle, flex: 1, minWidth: "160px" }}>
+          <div style={{ fontSize: "0.85rem", color: colors.textSecondary }}>
             Predictions
           </div>
           <div style={{ fontSize: "1.75rem", fontWeight: 700 }}>
             {predictions.length}
           </div>
           <Link to="/challenges" style={linkStyle}>
-            View challenges →
+            View challenges
           </Link>
         </div>
       </div>
 
       <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1rem" }}>
-        <button onClick={handleSync} disabled={syncing} style={btnStyle}>
-          {syncing ? "Syncing…" : "📅 Sync Calendar"}
+        <button onClick={handleSync} disabled={syncing} style={btnSecondary}>
+          {syncing ? "Syncing..." : "Sync Calendar"}
         </button>
         <button onClick={handleGenerate} disabled={generating} style={btnPrimary}>
-          {generating ? "Generating…" : "✨ Generate Predictions"}
+          {generating ? "Generating..." : "Generate Predictions"}
         </button>
       </div>
 
       {msg && (
-        <p style={{ color: "#a5f3fc", marginBottom: "1rem" }}>{msg}</p>
+        <p style={{ color: colors.primary, marginBottom: "1rem", fontWeight: 500 }}>{msg}</p>
       )}
 
-      <h2>Upcoming Events & Predictions</h2>
+      <h2 style={{ fontWeight: 700 }}>Upcoming Events & Predictions</h2>
       {predictions.length === 0 ? (
-        <p style={{ color: "#64748b" }}>
+        <p style={{ color: colors.textSecondary }}>
           No predictions yet. Sync your calendar and generate predictions.
         </p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           {predictions.map((p: any) => (
-            <div key={p.PREDICTION_ID ?? p.event_id} style={predCard}>
-              <div style={{ fontWeight: 600 }}>
+            <div key={p.PREDICTION_ID ?? p.event_id} style={cardStyle}>
+              <div style={{ fontWeight: 600, color: colors.textPrimary }}>
                 {p.TITLE ?? p.event_id}
               </div>
-              <div style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+              <div style={{ color: colors.textSecondary, fontSize: "0.9rem" }}>
                 {p.START_TIME
                   ? new Date(p.START_TIME).toLocaleString()
                   : ""}
               </div>
               <div style={{ marginTop: "0.4rem" }}>
                 Predicted:{" "}
-                <strong style={{ color: "#a3e635" }}>
+                <strong style={{ color: colors.green }}>
                   ${(p.PREDICTED_AMOUNT ?? p.predicted_amount ?? 0).toFixed(2)}
                 </strong>
                 {(p.SUGGESTED_LIMIT ?? p.suggested_limit) && (
                   <>
-                    {" "}· Suggested limit:{" "}
-                    <strong style={{ color: "#fb923c" }}>
+                    {" "} · Suggested limit:{" "}
+                    <strong style={{ color: colors.orange }}>
                       ${(p.SUGGESTED_LIMIT ?? p.suggested_limit).toFixed(2)}
                     </strong>
                   </>
@@ -120,7 +121,7 @@ export default function DashboardPage() {
               {(p.REASONING_TEXT ?? p.reasoning) && (
                 <p
                   style={{
-                    color: "#94a3b8",
+                    color: colors.textSecondary,
                     fontSize: "0.85rem",
                     marginTop: "0.25rem",
                   }}
@@ -132,7 +133,7 @@ export default function DashboardPage() {
                 to="/challenges"
                 style={{ ...linkStyle, marginTop: "0.4rem", display: "block" }}
               >
-                Create a challenge →
+                Create a challenge
               </Link>
             </div>
           ))}
@@ -141,54 +142,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-const pageStyle: React.CSSProperties = {
-  padding: "1.5rem",
-  maxWidth: "720px",
-  margin: "0 auto",
-  fontFamily: "sans-serif",
-  color: "#f8fafc",
-};
-
-const cardRow: React.CSSProperties = {
-  display: "flex",
-  gap: "1rem",
-  marginBottom: "1.25rem",
-  flexWrap: "wrap",
-};
-
-const statCard: React.CSSProperties = {
-  background: "#1e293b",
-  borderRadius: "10px",
-  padding: "1rem 1.5rem",
-  minWidth: "160px",
-  flex: 1,
-};
-
-const predCard: React.CSSProperties = {
-  background: "#1e293b",
-  borderRadius: "10px",
-  padding: "1rem",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "0.6rem 1.2rem",
-  borderRadius: "7px",
-  border: "1px solid #334155",
-  background: "#1e293b",
-  color: "#f8fafc",
-  cursor: "pointer",
-  fontWeight: 600,
-};
-
-const btnPrimary: React.CSSProperties = {
-  ...btnStyle,
-  background: "#6366f1",
-  border: "none",
-};
-
-const linkStyle: React.CSSProperties = {
-  color: "#818cf8",
-  textDecoration: "none",
-  fontSize: "0.85rem",
-};

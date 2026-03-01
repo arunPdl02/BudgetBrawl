@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getFriends } from "../api/friends";
 import { getPredictions } from "../api/predictions";
 import { createChallenge } from "../api/challenges";
+import { colors, pageStyle, selectStyle, inputStyle, btnPrimary, labelStyle } from "../theme";
 
 export default function NewChallengePage() {
   const navigate = useNavigate();
@@ -69,8 +70,8 @@ export default function NewChallengePage() {
   };
 
   return (
-    <div style={pageStyle}>
-      <h1>New Challenge</h1>
+    <div style={{ ...pageStyle, maxWidth: "600px" }}>
+      <h1 style={{ fontWeight: 800 }}>New Challenge</h1>
 
       <label style={labelStyle}>Event</label>
       <select
@@ -78,7 +79,7 @@ export default function NewChallengePage() {
         value={predictionIdx}
         onChange={(e) => setPredictionIdx(Number(e.target.value))}
       >
-        <option value={-1}>Select an event…</option>
+        <option value={-1}>Select an event...</option>
         {predictions.map((p: any, i: number) => (
           <option key={p.PREDICTION_ID ?? p.event_id ?? i} value={i}>
             {p.TITLE ?? p.EVENT_TITLE ?? p.event_id} —{" "}
@@ -94,7 +95,7 @@ export default function NewChallengePage() {
         value={friendId}
         onChange={(e) => setFriendId(e.target.value)}
       >
-        <option value="">Select a friend…</option>
+        <option value="">Select a friend...</option>
         {friends.map((f: any) => (
           <option key={f.USER_ID} value={f.USER_ID}>
             {f.DISPLAY_NAME ?? f.EMAIL}
@@ -124,64 +125,15 @@ export default function NewChallengePage() {
         onChange={(e) => setStake(e.target.value)}
       />
 
-      {error && <p style={{ color: "#f87171", marginTop: "0.5rem" }}>{error}</p>}
+      {error && <p style={{ color: colors.coral, marginTop: "0.5rem" }}>{error}</p>}
 
       <button
         onClick={handleSubmit}
         disabled={submitting}
-        style={{ ...btnPrimary, marginTop: "1.25rem", width: "100%" }}
+        style={{ ...btnPrimary, marginTop: "1.25rem", width: "100%", opacity: submitting ? 0.6 : 1 }}
       >
-        {submitting ? "Creating…" : "Create Challenge"}
+        {submitting ? "Creating..." : "Create Challenge"}
       </button>
     </div>
   );
 }
-
-const pageStyle: React.CSSProperties = {
-  padding: "1.5rem",
-  maxWidth: "600px",
-  margin: "0 auto",
-  fontFamily: "sans-serif",
-  color: "#f8fafc",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  marginTop: "1rem",
-  marginBottom: "0.35rem",
-  color: "#94a3b8",
-  fontSize: "0.9rem",
-  fontWeight: 600,
-};
-
-const selectStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.6rem 0.8rem",
-  borderRadius: "6px",
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#f8fafc",
-  fontSize: "1rem",
-};
-
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "0.6rem 0.8rem",
-  borderRadius: "6px",
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#f8fafc",
-  fontSize: "1rem",
-  boxSizing: "border-box",
-};
-
-const btnPrimary: React.CSSProperties = {
-  padding: "0.7rem 1.2rem",
-  borderRadius: "7px",
-  border: "none",
-  background: "#6366f1",
-  color: "#fff",
-  fontWeight: 700,
-  cursor: "pointer",
-  fontSize: "1rem",
-};

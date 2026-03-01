@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { colors } from "../theme";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -29,12 +30,12 @@ export default function AuthCallbackPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#0f172a",
-        color: "#f8fafc",
-        fontFamily: "sans-serif",
+        background: colors.pageBg,
+        color: colors.textSecondary,
+        fontFamily: "'Inter', sans-serif",
       }}
     >
-      Signing you in…
+      Signing you in...
     </div>
   );
 }

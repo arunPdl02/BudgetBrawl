@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getChallenge, reportSpend } from "../api/challenges";
 import { useAuth } from "../contexts/AuthContext";
 import { useWallet } from "../contexts/WalletContext";
+import { colors, pageStyle, cardStyle, inputStyle, btnPrimary } from "../theme";
 
 export default function ChallengePage() {
   const { id } = useParams<{ id: string }>();
@@ -20,7 +21,7 @@ export default function ChallengePage() {
 
   if (!challenge)
     return (
-      <div style={{ ...pageStyle, textAlign: "center" }}>Loading…</div>
+      <div style={{ ...pageStyle, textAlign: "center", color: colors.textSecondary }}>Loading...</div>
     );
 
   const isInitiator = challenge.INITIATOR_ID === user?.USER_ID;
@@ -48,9 +49,9 @@ export default function ChallengePage() {
   };
 
   return (
-    <div style={pageStyle}>
-      <h1>{challenge.EVENT_TITLE ?? challenge.EVENT_ID}</h1>
-      <p style={{ color: "#94a3b8" }}>
+    <div style={{ ...pageStyle, maxWidth: "600px" }}>
+      <h1 style={{ fontWeight: 800 }}>{challenge.EVENT_TITLE ?? challenge.EVENT_ID}</h1>
+      <p style={{ color: colors.textSecondary }}>
         {challenge.START_TIME
           ? new Date(challenge.START_TIME).toLocaleString()
           : ""}
@@ -59,7 +60,7 @@ export default function ChallengePage() {
           : ""}
       </p>
 
-      <div style={card}>
+      <div style={{ ...cardStyle, marginTop: "1rem", padding: "1rem 1.25rem" }}>
         <Row label="Status" value={challenge.STATUS?.replace(/_/g, " ")} />
         <Row label="Initiator" value={challenge.INITIATOR_NAME} />
         <Row label="Friend" value={challenge.FRIEND_NAME} />
@@ -82,27 +83,30 @@ export default function ChallengePage() {
       {result && (
         <div
           style={{
-            background: result.winner_id === user?.USER_ID ? "#14532d" : "#450a0a",
-            borderRadius: "10px",
-            padding: "1rem",
+            background: result.winner_id === user?.USER_ID ? "#E8F5E9" : "#FFEBEE",
+            borderRadius: "16px",
+            padding: "1rem 1.25rem",
             marginTop: "1rem",
+            color: result.winner_id === user?.USER_ID ? "#2E7D32" : "#C62828",
+            fontWeight: 600,
+            fontSize: "1.05rem",
           }}
         >
           {result.winner_id === user?.USER_ID
-            ? `🎉 You won $${result.pot}!`
-            : `😔 You lost. Better luck next time.`}
+            ? `You won $${result.pot}!`
+            : `You lost. Better luck next time.`}
         </div>
       )}
 
       {canReport && !result && (
         <div style={{ marginTop: "1.5rem" }}>
-          <h2>Report Actual Spend</h2>
-          <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
+          <h2 style={{ fontWeight: 700 }}>Report Actual Spend</h2>
+          <p style={{ color: colors.textSecondary, fontSize: "0.9rem" }}>
             Enter what you actually spent at this event.
           </p>
           <div style={{ display: "flex", gap: "0.5rem" }}>
             <input
-              style={inputStyle}
+              style={{ ...inputStyle, flex: 1, width: "auto" }}
               type="number"
               min="0"
               step="0.01"
@@ -111,10 +115,10 @@ export default function ChallengePage() {
               onChange={(e) => setAmount(e.target.value)}
             />
             <button onClick={handleReport} disabled={submitting} style={btnPrimary}>
-              {submitting ? "Submitting…" : "Submit"}
+              {submitting ? "Submitting..." : "Submit"}
             </button>
           </div>
-          {error && <p style={{ color: "#f87171" }}>{error}</p>}
+          {error && <p style={{ color: colors.coral, marginTop: "0.5rem" }}>{error}</p>}
         </div>
       )}
     </div>
@@ -127,47 +131,12 @@ function Row({ label, value }: { label: string; value: string }) {
       style={{
         display: "flex",
         justifyContent: "space-between",
-        padding: "0.4rem 0",
-        borderBottom: "1px solid #334155",
+        padding: "0.45rem 0",
+        borderBottom: `1px solid ${colors.borderLight}`,
       }}
     >
-      <span style={{ color: "#94a3b8" }}>{label}</span>
-      <span>{value}</span>
+      <span style={{ color: colors.textSecondary }}>{label}</span>
+      <span style={{ fontWeight: 500 }}>{value}</span>
     </div>
   );
 }
-
-const pageStyle: React.CSSProperties = {
-  padding: "1.5rem",
-  maxWidth: "600px",
-  margin: "0 auto",
-  fontFamily: "sans-serif",
-  color: "#f8fafc",
-};
-
-const card: React.CSSProperties = {
-  background: "#1e293b",
-  borderRadius: "10px",
-  padding: "1rem",
-  marginTop: "1rem",
-};
-
-const inputStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "0.6rem 0.8rem",
-  borderRadius: "6px",
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#f8fafc",
-  fontSize: "1rem",
-};
-
-const btnPrimary: React.CSSProperties = {
-  padding: "0.6rem 1.1rem",
-  borderRadius: "7px",
-  border: "none",
-  background: "#6366f1",
-  color: "#fff",
-  fontWeight: 700,
-  cursor: "pointer",
-};

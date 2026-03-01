@@ -6,6 +6,7 @@ import {
   getPending,
   sendRequest,
 } from "../api/friends";
+import { colors, pageStyle, cardStyle, inputStyle, btnPrimary, btnSmall } from "../theme";
 
 export default function FriendsPage() {
   const [friends, setFriends] = useState<any[]>([]);
@@ -45,11 +46,11 @@ export default function FriendsPage() {
 
   return (
     <div style={pageStyle}>
-      <h1>Friends</h1>
+      <h1 style={{ fontWeight: 800 }}>Friends</h1>
 
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
         <input
-          style={inputStyle}
+          style={{ ...inputStyle, flex: 1, width: "auto" }}
           placeholder="friend@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -59,24 +60,24 @@ export default function FriendsPage() {
           Add Friend
         </button>
       </div>
-      {msg && <p style={{ color: "#a5f3fc" }}>{msg}</p>}
+      {msg && <p style={{ color: colors.primary, fontWeight: 500 }}>{msg}</p>}
 
       {pending.length > 0 && (
         <>
-          <h2>Pending Requests</h2>
+          <h2 style={{ fontWeight: 700 }}>Pending Requests</h2>
           {pending.map((p: any) => (
-            <div key={p.FRIENDSHIP_ID} style={card}>
-              <span>{p.DISPLAY_NAME ?? p.EMAIL}</span>
+            <div key={p.FRIENDSHIP_ID} style={{ ...cardStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontWeight: 600 }}>{p.DISPLAY_NAME ?? p.EMAIL}</span>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button
                   onClick={() => handleAccept(p.FRIENDSHIP_ID)}
-                  style={{ ...btnSmall, background: "#16a34a" }}
+                  style={{ ...btnSmall, background: colors.green }}
                 >
                   Accept
                 </button>
                 <button
                   onClick={() => handleDecline(p.FRIENDSHIP_ID)}
-                  style={{ ...btnSmall, background: "#dc2626" }}
+                  style={{ ...btnSmall, background: colors.coral }}
                 >
                   Decline
                 </button>
@@ -86,15 +87,15 @@ export default function FriendsPage() {
         </>
       )}
 
-      <h2>My Friends ({friends.length})</h2>
+      <h2 style={{ fontWeight: 700 }}>My Friends ({friends.length})</h2>
       {friends.length === 0 ? (
-        <p style={{ color: "#64748b" }}>No friends yet. Add someone!</p>
+        <p style={{ color: colors.textSecondary }}>No friends yet. Add someone!</p>
       ) : (
         friends.map((f: any) => (
-          <div key={f.FRIENDSHIP_ID} style={card}>
+          <div key={f.FRIENDSHIP_ID} style={{ ...cardStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontWeight: 600 }}>{f.DISPLAY_NAME ?? f.EMAIL}</div>
-              <div style={{ color: "#94a3b8", fontSize: "0.85rem" }}>
+              <div style={{ color: colors.textSecondary, fontSize: "0.85rem" }}>
                 {f.EMAIL}
               </div>
             </div>
@@ -104,51 +105,3 @@ export default function FriendsPage() {
     </div>
   );
 }
-
-const pageStyle: React.CSSProperties = {
-  padding: "1.5rem",
-  maxWidth: "600px",
-  margin: "0 auto",
-  fontFamily: "sans-serif",
-  color: "#f8fafc",
-};
-
-const card: React.CSSProperties = {
-  background: "#1e293b",
-  borderRadius: "10px",
-  padding: "0.9rem 1rem",
-  marginBottom: "0.6rem",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const inputStyle: React.CSSProperties = {
-  flex: 1,
-  padding: "0.6rem 0.8rem",
-  borderRadius: "6px",
-  border: "1px solid #334155",
-  background: "#0f172a",
-  color: "#f8fafc",
-  fontSize: "1rem",
-};
-
-const btnPrimary: React.CSSProperties = {
-  padding: "0.6rem 1.1rem",
-  borderRadius: "7px",
-  border: "none",
-  background: "#6366f1",
-  color: "#fff",
-  fontWeight: 700,
-  cursor: "pointer",
-};
-
-const btnSmall: React.CSSProperties = {
-  padding: "0.35rem 0.75rem",
-  borderRadius: "5px",
-  border: "none",
-  color: "#fff",
-  fontWeight: 600,
-  cursor: "pointer",
-  fontSize: "0.85rem",
-};
