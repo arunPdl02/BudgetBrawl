@@ -69,7 +69,7 @@ def list_friends(user_id: str) -> list[dict]:
     return run_query(
         """
         SELECT f.friendship_id, f.requester_id, f.addressee_id,
-               u.email, u.display_name, u.avatar_url
+               u.user_id, u.email, u.display_name, u.avatar_url
         FROM friends f
         JOIN users u ON u.user_id = CASE
             WHEN f.requester_id = %s THEN f.addressee_id

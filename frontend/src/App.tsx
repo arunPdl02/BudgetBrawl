@@ -3,6 +3,7 @@ import { useAuth } from "./contexts/AuthContext";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import ChallengePage from "./pages/ChallengePage";
 import ChallengesListPage from "./pages/ChallengesListPage";
+import NewChallengePage from "./pages/NewChallengePage";
 import DashboardPage from "./pages/DashboardPage";
 import FriendsPage from "./pages/FriendsPage";
 import LoginPage from "./pages/LoginPage";
@@ -129,6 +130,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <ChallengesListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenges/new"
+          element={
+            <ProtectedRoute>
+              <NewChallengePage />
             </ProtectedRoute>
           }
         />
