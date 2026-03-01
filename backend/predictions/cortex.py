@@ -44,9 +44,10 @@ def predict_spending(
         ]
     )
 
+    # COMPLETE(model, messages, options): options must be present for messages-array format
     rows = run_query(
-        f"SELECT SNOWFLAKE.CORTEX.COMPLETE(%s, PARSE_JSON(%s)) AS response",
-        (_MODEL, messages),
+        "SELECT SNOWFLAKE.CORTEX.COMPLETE(%s, PARSE_JSON(%s), PARSE_JSON(%s)) AS response",
+        (_MODEL, messages, "{}"),
     )
 
     raw = rows[0]["RESPONSE"] if rows else "{}"
