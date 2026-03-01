@@ -235,6 +235,40 @@ def get_challenge(challenge_id: int, user_id: str) -> dict:
     return rows[0]
 
 
+def get_win_loss_per_friend(user_id: str) -> list[dict]:
+    """Win/loss stats broken down per friend (opponent)."""
+    rows = run_query(
+        """
+        SELECT
+            opponent_id,
+            COUNT(CASE WHEN winner_id = %s THEN 1 END) AS wins,
+            COUNT(CASE WHEN loser_id = %s THEN 1 END) AS losses
+        FROM (
+            SELECT
+                co.*,
+                CASE
+                    WHEN c.initiator_id = %s THEN c.friend_id
+                    ELSE c.initiator_id
+                END AS opponent_id
+            FROM challenge_outcomes co
+            JOIN challenges c ON c.challenge_id = co.challenge_id
+            WHERE c.initiator_id = %s OR c.friend_id = %s
+        ) sub
+        WHERE winner_id = %s OR loser_id = %s
+        GROUP BY opponent_id
+        """,
+        (user_id, user_id, user_id, user_id, user_id, user_id, user_id),
+    )
+    return [
+        {
+            "friend_id": r["OPPONENT_ID"],
+            "wins": int(r.get("WINS") or 0),
+            "losses": int(r.get("LOSSES") or 0),
+        }
+        for r in rows
+    ]
+
+
 def get_win_loss_stats(user_id: str) -> dict:
     """Aggregate challenge_outcomes for current user: wins, losses, total_won, total_lost, win_rate."""
     rows = run_query(

@@ -23,3 +23,7 @@ export const reportSpend = (id: number, actual_amount_spent: number) =>
 /** Win/loss stats: wins, losses, total_won, total_lost, win_rate. */
 export const getWinLossStats = () =>
   apiClient.get("/challenges/stats").then((r) => r.data);
+
+/** Per-friend win/loss: [{friend_id, wins, losses}, ...] */
+export const getWinLossPerFriend = () =>
+  apiClient.get("/challenges/stats/friends").then((r) => r.data);

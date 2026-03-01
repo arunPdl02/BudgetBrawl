@@ -12,6 +12,7 @@ from challenges.service import (
     list_challenges,
     report_spend,
     get_win_loss_stats,
+    get_win_loss_per_friend,
 )
 
 router = APIRouter(prefix="/challenges", tags=["challenges"])
@@ -38,6 +39,12 @@ def list_all(current_user: dict = Depends(get_current_user)):
 def stats(current_user: dict = Depends(get_current_user)):
     """Win/loss aggregate for current user (wins, losses, total_won, total_lost, win_rate)."""
     return get_win_loss_stats(current_user["sub"])
+
+
+@router.get("/stats/friends")
+def stats_per_friend(current_user: dict = Depends(get_current_user)):
+    """Win/loss stats broken down per friend."""
+    return get_win_loss_per_friend(current_user["sub"])
 
 
 @router.get("/{challenge_id}")

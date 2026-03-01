@@ -6,17 +6,30 @@ import {
   getPending,
   sendRequest,
 } from "../api/friends";
+import { getWinLossPerFriend } from "../api/challenges";
 import { colors, fonts, fontSize, lineHeight, pageStyle, cardStyle, inputStyle, btnPrimary, btnSmall } from "../theme";
+
+type FriendStats = Record<string, { wins: number; losses: number }>;
 
 export default function FriendsPage() {
   const [friends, setFriends] = useState<any[]>([]);
   const [pending, setPending] = useState<any[]>([]);
+  const [friendStats, setFriendStats] = useState<FriendStats>({});
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
 
   const reload = () => {
     getFriends().then(setFriends).catch(() => {});
     getPending().then(setPending).catch(() => {});
+    getWinLossPerFriend()
+      .then((stats: any[]) => {
+        const map: FriendStats = {};
+        for (const s of stats) {
+          map[s.friend_id] = { wins: s.wins, losses: s.losses };
+        }
+        setFriendStats(map);
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -95,16 +108,30 @@ export default function FriendsPage() {
       {friends.length === 0 ? (
         <p style={{ color: colors.textSecondary, fontSize: fontSize.body }}>No friends yet. Add someone!</p>
       ) : (
-        friends.map((f: any) => (
-          <div key={f.FRIENDSHIP_ID} className="hover-card" style={{ ...cardStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: fontSize.body }}>{f.DISPLAY_NAME ?? f.EMAIL}</div>
-              <div style={{ color: colors.textSecondary, fontSize: fontSize.bodySmall }}>
-                {f.EMAIL}
+        friends.map((f: any) => {
+          const stats = friendStats[f.USER_ID];
+          return (
+            <div key={f.FRIENDSHIP_ID} className="hover-card" style={{ ...cardStyle, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: fontSize.body }}>{f.DISPLAY_NAME ?? f.EMAIL}</div>
+                <div style={{ color: colors.textSecondary, fontSize: fontSize.bodySmall }}>
+                  {f.EMAIL}
+                </div>
+              </div>
+              <div style={{ textAlign: "right", fontSize: fontSize.bodySmall, whiteSpace: "nowrap" }}>
+                {stats ? (
+                  <>
+                    <span style={{ color: colors.green, fontWeight: 600 }}>{stats.wins}W</span>
+                    <span style={{ color: colors.textSecondary, margin: "0 0.2rem" }}>/</span>
+                    <span style={{ color: colors.coral, fontWeight: 600 }}>{stats.losses}L</span>
+                  </>
+                ) : (
+                  <span style={{ color: colors.textMuted }}>No games</span>
+                )}
               </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );
