@@ -1,5 +1,9 @@
 """Google OAuth2 flow helpers using google-auth-oauthlib."""
 
+import base64
+import hashlib
+import secrets
+
 from google_auth_oauthlib.flow import Flow
 
 from config import settings
@@ -32,16 +36,19 @@ def build_flow(state: str | None = None) -> Flow:
     return flow
 
 
-def authorization_url(flow: Flow) -> tuple[str, str, str | None]:
-    """Return (url, state, code_verifier). code_verifier is set if PKCE was auto-used."""
+def authorization_url(flow: Flow) -> tuple[str, str, str]:
+    """Return (url, state, code_verifier). Manually generate PKCE since lib doesn't for web client."""
+    code_verifier = secrets.token_urlsafe(32)
+    code_challenge = base64.urlsafe_b64encode(
+        hashlib.sha256(code_verifier.encode()).digest()
+    ).decode().rstrip("=")
     url, state = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
         prompt="consent",
+        code_challenge=code_challenge,
+        code_challenge_method="S256",
     )
-    # Newer google-auth-oauthlib auto-generates a PKCE verifier; capture it so
-    # we can pass it back during token exchange.
-    code_verifier = getattr(flow.oauth2session._client, "code_verifier", None)
     return url, state, code_verifier
 
 

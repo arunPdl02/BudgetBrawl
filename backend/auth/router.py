@@ -1,9 +1,7 @@
 """Auth router: Google OAuth flow + /auth/me."""
 
-import base64
-import os
-
 import httpx
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 
@@ -38,8 +36,17 @@ def login_google():
 
 
 @router.get("/callback")
-async def auth_callback(code: str, state: str, request: Request):
+async def auth_callback(
+    request: Request,
+    code: str | None = None,
+    state: str | None = None,
+):
     """Exchange Google code, upsert user, issue JWT, redirect to frontend."""
+    if code is None or state is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing code or state. This page should only be reached after signing in with Google. Please go to the login page and try again.",
+        )
     flow = build_flow(state=state)
     code_verifier = request.cookies.get("code_verifier") or None
     try:
@@ -57,8 +64,11 @@ async def auth_callback(code: str, state: str, request: Request):
         raise HTTPException(status_code=400, detail="Failed to fetch Google profile")
 
     profile = resp.json()
-    user_id = profile["sub"]
-    email = profile["email"]
+    try:
+        user_id = profile["sub"]
+        email = profile["email"]
+    except KeyError as e:
+        raise HTTPException(status_code=400, detail=f"Google profile missing required field: {e}") from e
     display_name = profile.get("name", "")
     avatar_url = profile.get("picture", "")
 
@@ -70,13 +80,16 @@ async def auth_callback(code: str, state: str, request: Request):
         except Exception:
             encrypted_refresh = credentials.refresh_token  # fallback if key not set
 
-    upsert_user(
-        user_id=user_id,
-        email=email,
-        display_name=display_name,
-        avatar_url=avatar_url,
-        encrypted_refresh_token=encrypted_refresh,
-    )
+    try:
+        upsert_user(
+            user_id=user_id,
+            email=email,
+            display_name=display_name,
+            avatar_url=avatar_url,
+            encrypted_refresh_token=encrypted_refresh,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}") from e
 
     token = create_token(user_id=user_id, email=email)
     redirect_url = f"{settings.FRONTEND_URL}/auth/callback?token={token}"

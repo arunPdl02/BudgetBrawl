@@ -6,7 +6,13 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      "/auth": "http://localhost:8000",
+      "/auth": {
+        target: "http://localhost:8000",
+        bypass(req) {
+          // Don't proxy /auth/callback - serve SPA so AuthCallbackPage handles token
+          if (req.url?.startsWith("/auth/callback")) return "/index.html";
+        },
+      },
     },
   },
 });
