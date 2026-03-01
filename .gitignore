@@ -12,17 +12,16 @@ build/
 .env
 *.env.local
 
-# SQLite (old)
+# Database
 *.db
+
+# Logs
+*.log
 
 # Node
 node_modules/
 frontend/dist/
 frontend/.vite/
-
-# Next.js (old)
-frontend/.next/
-frontend/out/
 
 # IDE
 .vscode/

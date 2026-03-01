@@ -1,6 +1,5 @@
 """Snowflake connection management with SQLite fallback when Snowflake is unavailable."""
 
-import json
 import sqlite3
 import threading
 from contextlib import contextmanager
@@ -140,14 +139,6 @@ def run_query(
             return []
     conn = _get_sqlite_connection()
     sql_sqlite = sql.replace("%s", "?").replace("CURRENT_TIMESTAMP()", "datetime('now')")
-    # #region agent log
-    try:
-        _log_path = Path(__file__).resolve().parent.parent / "debug-185af0.log"
-        with open(_log_path, "a") as _f:
-            _f.write(json.dumps({"sessionId":"185af0","location":"database.py:run_query","message":"SQLite path","data":{"db_type":"sqlite","query_refs_spending_predictions":"spending_predictions" in sql},"hypothesisId":"H1","timestamp":__import__("time").time_ns()//1_000_000})+ "\n")
-    except Exception:
-        pass
-    # #endregion
     cur = conn.execute(sql_sqlite, params)
     if fetch:
         rows = cur.fetchall()
