@@ -1,9 +1,34 @@
 """Prediction service: run Cortex for unpredicted events and store results."""
 
+import json
+from pathlib import Path
+
 from fastapi import HTTPException
 
-from database import run_query
+from database import get_db_type, run_query
 from predictions.cortex import predict_spending
+
+# #region agent log
+def _debug_log(message: str, data: dict) -> None:
+    try:
+        log_path = Path(__file__).resolve().parent.parent.parent / "debug-185af0.log"
+        with open(log_path, "a") as f:
+            f.write(
+                json.dumps(
+                    {
+                        "sessionId": "185af0",
+                        "location": "predictions/service.py",
+                        "message": message,
+                        "data": data,
+                        "hypothesisId": "predict_verify",
+                        "timestamp": __import__("time").time_ns() // 1_000_000,
+                    }
+                )
+                + "\n"
+            )
+    except Exception:
+        pass
+# #endregion
 
 
 def get_predictions(user_id: str) -> list[dict]:
@@ -52,6 +77,13 @@ def generate_predictions(user_id: str) -> list[dict]:
         (user_id,),
     )
 
+    # #region agent log
+    _debug_log(
+        "generate_predictions: events fetched",
+        {"db_type": get_db_type(), "event_count": len(events)},
+    )
+    # #endregion
+
     results = []
     for ev in events:
         try:
@@ -64,6 +96,16 @@ def generate_predictions(user_id: str) -> list[dict]:
                 going_out_last_weekend=habits.get("going_out_last_weekend", ""),
             )
         except Exception as exc:
+            # #region agent log
+            _debug_log(
+                "generate_predictions: prediction failed for event",
+                {
+                    "event_id": ev.get("EVENT_ID", ""),
+                    "error_type": type(exc).__name__,
+                    "error_message": str(exc)[:500],
+                },
+            )
+            # #endregion
             # Skip events that fail prediction
             continue
 
@@ -82,6 +124,13 @@ def generate_predictions(user_id: str) -> list[dict]:
             ),
             fetch=False,
         )
+
+        # #region agent log
+        _debug_log(
+            "generate_predictions: prediction ok",
+            {"event_id": ev.get("EVENT_ID", ""), "predicted_amount": pred.get("predicted_amount")},
+        )
+        # #endregion
 
         results.append(
             {
