@@ -47,9 +47,9 @@ function Nav() {
         borderBottom: "1px solid rgba(255, 255, 255, 0.2)",
       }}
     >
-      <span style={{ fontFamily: fonts.heading, fontWeight: 600, color: colors.textPrimary, marginRight: "auto", fontSize: fontSize.h3, lineHeight: lineHeight.tight }}>
-        BudgetBrawl
-      </span>
+      <a href="/dashboard" className="nav-logo-link" style={{ marginRight: "auto", display: "flex", alignItems: "center", textDecoration: "none", overflow: "visible" }}>
+        <img src="/BudgetBrawl.png" alt="Budget Brawl" style={{ height: "64px", width: "auto", objectFit: "contain", transform: "scale(1.4)", transformOrigin: "center center" }} />
+      </a>
       {navLink("/dashboard", "Dashboard")}
       {navLink("/friends", "Friends")}
       {navLink("/challenges", "Challenges")}
@@ -188,7 +188,7 @@ function RoutesConfig() {
         initial={pageTransition.initial}
         animate={pageTransition.animate}
         exit={pageTransition.exit}
-        transition={pageTransition.transition}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
       >
         {element}
       </motion.div>

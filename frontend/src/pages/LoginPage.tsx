@@ -1,8 +1,27 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { colors, fonts, fontSize, lineHeight, btnAccent } from "../theme";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export default function LoginPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7442/ingest/92e0bf12-cf29-4ffa-90e8-0a9b856a2e52", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "058dcb" },
+      body: JSON.stringify({ sessionId: "058dcb", location: "LoginPage.tsx", message: "LoginPage mount", data: { hasUser: !!user }, hypothesisId: "H3", timestamp: Date.now() }),
+    }).catch(() => {});
+    // #endregion
+    if (user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, navigate]);
+
   return (
     <div
       style={{
