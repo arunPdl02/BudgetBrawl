@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { colors } from "../theme";
+import { colors, fonts, fontSize } from "../theme";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -32,7 +32,8 @@ export default function AuthCallbackPage() {
         justifyContent: "center",
         background: colors.pageBg,
         color: colors.textSecondary,
-        fontFamily: "'Inter', sans-serif",
+        fontFamily: fonts.body,
+        fontSize: fontSize.body,
       }}
     >
       Signing you in...
